@@ -1,0 +1,99 @@
+/* style.css */
+
+/* Styles généraux pour le corps de la page */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+/* Conteneur principal du formulaire de connexion et d'inscription */
+.form-container {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 450px; /* Taille uniforme pour les deux formulaires */
+    text-align: center;
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 25px;
+    font-size: 24px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #555;
+}
+
+input[type="text"],
+input[type="password"],
+select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box; 
+}
+
+/* Boutons de soumission (connexion) */
+.btn-login {
+    width: 100%;
+    padding: 12px;
+    background-color: #007bff; /* Bleu pour la Connexion */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+    transition: background-color 0.3s;
+}
+
+.btn-login:hover {
+    background-color: #0056b3;
+}
+
+/* Boutons de soumission (inscription) */
+.btn-register {
+    width: 100%;
+    padding: 12px;
+    background-color: #28a745; /* Vert pour l'Inscription */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+    transition: background-color 0.3s;
+}
+
+.btn-register:hover {
+    background-color: #1e7e34;
+}
+
+/* Lien pour passer de Connexion à Inscription */
+.link-switch {
+    display: block;
+    margin-top: 25px;
+    color: #007bff;
+    text-decoration: none;
+}
+
+.link-switch:hover {
+    text-decoration: underline;
+}

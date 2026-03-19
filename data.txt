@@ -1,0 +1,193 @@
+Colonne,Type de Donnée,Description,Rôle
+id_utilisateur,INT,Clé Primaire.,Tous
+nom_compte,VARCHAR(100),Nom de l'utilisateur/École/Entreprise.,Tous
+email,VARCHAR(150),Email (pour modification de profil utilisateur).,Tous
+mot_de_passe,CHAR(60),Hachage du mot de passe.,Tous
+role,ENUM(...),"'administrateur', 'ecole', 'entreprise', 'simple_utilisateur'.",Tous
+est_actif,BOOLEAN,"Statut du compte (activé par défaut, désactivable par Admin).",Admin
+nom / prenom / adresse,VARCHAR,Informations personnelles (pour simple_utilisateur).,Utilisateur Simple
+
+Colonne,Type de Donnée,Description,Rôle
+id_quiz,INT,Clé Primaire.,Tous
+titre,VARCHAR(255),,Tous
+id_createur,INT,Clé Étrangère vers utilisateur.,École/Entreprise
+statut,ENUM(...),"'en_cours_ecriture', 'lance', 'termine'.",Tous
+date_creation,DATETIME,,Tous
+est_actif,BOOLEAN,Statut du quiz (désactivable par Admin).,Admin
+
+
+Table,Colonne,Type de Donnée,Description,Exigence
+question,id_question,INT,Clé Primaire.,
+question,id_quiz,INT,Clé Étrangère vers quiz.,
+question,enonce,TEXT,Le texte de la question.,
+question,type_question,ENUM(...),'qcm' (École/Entreprise) ou 'reponse_libre' (Entreprise seulement).,
+question,points,INT,Points attribués à la question (pour les Écoles).,École
+reponse_proposee,id_reponse_proposee,INT,Clé Primaire.,
+reponse_proposee,id_question,INT,Clé Étrangère vers question.,
+reponse_proposee,texte_reponse,VARCHAR(255),Option de réponse du QCM.,
+reponse_proposee,est_correcte,BOOLEAN,Vrai si c'est la bonne réponse.,
+
+
+Table,Colonne,Type de Donnée,Description,Exigence
+resultat_utilisateur,id_resultat,INT,Clé Primaire.,
+resultat_utilisateur,id_utilisateur,INT,Clé Étrangère du participant.,Utilisateur Simple
+resultat_utilisateur,id_quiz,INT,Clé Étrangère du quiz.,
+resultat_utilisateur,note_totale,FLOAT,Note sur le total des points (pour les Écoles).,École
+resultat_utilisateur,pourcentage_reussi,FLOAT,Pourcentage de bonnes réponses (pour les Entreprises).,Entreprise
+reponse_utilisateur,id_reponse_utilisateur,INT,Clé Primaire.,
+reponse_utilisateur,id_resultat,INT,Clé Étrangère vers resultat_utilisateur.,
+reponse_utilisateur,id_question,INT,Question à laquelle il est répondu.,
+reponse_utilisateur,reponse_texte,TEXT,Réponse écrite (pour les questions libres).,
+reponse_utilisateur,id_reponse_choisie,INT,Clé Étrangère vers l'option QCM choisie.,
+
+
+
+
+
+
+script a lancer pour creer base de donnees : 
+
+-- ====================================================================
+-- SCRIPT SQL DE CRÉATION ET INSERTION SANS HACHAGE (POUR TESTS)
+-- ATTENTION : Ces mots de passe sont stockés EN CLAIR !
+-- ====================================================================
+
+-- Suppression de la base de données si elle existe pour un nouveau départ
+DROP DATABASE IF EXISTS db_quizzeo;
+
+-- Création de la Base de Données
+CREATE DATABASE IF NOT EXISTS db_quizzeo;
+USE db_quizzeo;
+
+-- 1. Table Utilisateur
+CREATE TABLE utilisateur (
+    id_utilisateur INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    nom_compte VARCHAR(100) NOT NULL UNIQUE,
+    email VARCHAR(150) UNIQUE,
+    mot_de_passe VARCHAR(255) NOT NULL, -- Taille VARCHAR pour le mot de passe en clair
+    role ENUM('administrateur', 'ecole', 'entreprise', 'simple_utilisateur') NOT NULL,
+    est_actif BOOLEAN DEFAULT TRUE,
+    nom VARCHAR(100),
+    prenom VARCHAR(100),
+    adresse VARCHAR(255),
+    date_inscription DATETIME NOT NULL
+);
+
+-- 2. Table Quiz
+CREATE TABLE quiz (
+    id_quiz INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    titre VARCHAR(255) NOT NULL,
+    description TEXT,
+    id_createur INT UNSIGNED NOT NULL,
+    statut ENUM('en_cours_ecriture', 'lance', 'termine') NOT NULL,
+    date_creation DATETIME NOT NULL,
+    est_actif BOOLEAN DEFAULT TRUE,
+    
+    FOREIGN KEY (id_createur) REFERENCES utilisateur(id_utilisateur)
+);
+
+-- 3. Table Question
+CREATE TABLE question (
+    id_question INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    id_quiz INT UNSIGNED NOT NULL,
+    enonce TEXT NOT NULL,
+    type_question ENUM('qcm', 'reponse_libre') NOT NULL,
+    points INT DEFAULT 0,
+    
+    FOREIGN KEY (id_quiz) REFERENCES quiz(id_quiz) ON DELETE CASCADE
+);
+
+-- 4. Table Réponse Proposée (pour QCM)
+CREATE TABLE reponse_proposee (
+    id_reponse_proposee INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    id_question INT UNSIGNED NOT NULL,
+    texte_reponse VARCHAR(255) NOT NULL,
+    est_correcte BOOLEAN NOT NULL,
+    
+    FOREIGN KEY (id_question) REFERENCES question(id_question) ON DELETE CASCADE
+);
+
+-- 5. Table Résultat Utilisateur (Suivi global)
+CREATE TABLE resultat_utilisateur (
+    id_resultat INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    id_utilisateur INT UNSIGNED NOT NULL,
+    id_quiz INT UNSIGNED NOT NULL,
+    date_soumission DATETIME NOT NULL,
+    note_totale FLOAT,
+    pourcentage_reussi FLOAT,
+    
+    FOREIGN KEY (id_utilisateur) REFERENCES utilisateur(id_utilisateur),
+    FOREIGN KEY (id_quiz) REFERENCES quiz(id_quiz)
+);
+
+-- 6. Table Réponse Utilisateur (Détail des réponses)
+CREATE TABLE reponse_utilisateur (
+    id_reponse_utilisateur INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    id_resultat INT UNSIGNED NOT NULL,
+    id_question INT UNSIGNED NOT NULL,
+    reponse_texte TEXT,
+    id_reponse_choisie INT UNSIGNED,
+    est_correct BOOLEAN,
+    
+    FOREIGN KEY (id_resultat) REFERENCES resultat_utilisateur(id_resultat) ON DELETE CASCADE,
+    FOREIGN KEY (id_question) REFERENCES question(id_question),
+    FOREIGN KEY (id_reponse_choisie) REFERENCES reponse_proposee(id_reponse_proposee) 
+);
+
+-- ====================================================================
+-- JEU DE DONNÉES DE TEST (MOTS DE PASSE EN CLAIR)
+-- ====================================================================
+
+-- Mots de passe en clair:
+SET @MDP_ADMIN = 'Admin2025';
+SET @MDP_ECOLE = 'EcolePass!';
+SET @MDP_ENTREPRISE = 'AlphaCorp@1';
+SET @MDP_UTILISATEUR = 'Pierre1234';
+SET @MDP_INACTIF = 'PassInactive';
+
+-- Insertion des Utilisateurs de Test (ID 1 à 5)
+INSERT INTO utilisateur (id_utilisateur, nom_compte, email, mot_de_passe, role, est_actif, nom, prenom, date_inscription) VALUES
+(1, 'admin_master', 'admin@quizzeo.com', @MDP_ADMIN, 'administrateur', TRUE, NULL, NULL, NOW()),
+(2, 'EcoDevTech', 'ecole@devtech.com', @MDP_ECOLE, 'ecole', TRUE, NULL, NULL, NOW()),
+(3, 'Entreprise_Alpha', 'contact@alpha.com', @MDP_ENTREPRISE, 'entreprise', TRUE, NULL, NULL, NOW()),
+(4, 'Etudiant_Pierre', 'pierre@mail.com', @MDP_UTILISATEUR, 'simple_utilisateur', TRUE, 'Durand', 'Pierre', NOW()),
+(5, 'Compte_Desactive', 'desactive@mail.com', @MDP_INACTIF, 'simple_utilisateur', FALSE, 'Test', 'Inactif', NOW());
+
+-- Insertion des Quiz (ID 1 à 3)
+INSERT INTO quiz (id_quiz, titre, description, id_createur, statut, date_creation, est_actif) VALUES
+(1, 'Quiz Java - Niveau Fondamental', 'Évaluation pour les étudiants en développement.', 2, 'lance', NOW(), TRUE), 
+(2, 'Sondage Satisfaction Client', 'Questionnaire anonyme de satisfaction produit B.', 3, 'termine', NOW(), TRUE),
+(3, 'Quiz sur les bases de données', 'Quiz en cours de préparation par l\'école.', 2, 'en_cours_ecriture', NOW(), FALSE); 
+
+-- Insertion des Questions pour Quiz 1 (École - QCM) (ID 1 à 2)
+INSERT INTO question (id_question, id_quiz, enonce, type_question, points) VALUES
+(1, 1, 'Quelle méthode est utilisée pour lancer un thread en Java ?', 'qcm', 5),
+(2, 1, 'Quel mot-clé est utilisé pour l\'héritage en Java ?', 'qcm', 5);
+
+-- Insertion des Questions pour Quiz 2 (Entreprise - QCM & Réponse Libre) (ID 3 à 4)
+INSERT INTO question (id_question, id_quiz, enonce, type_question, points) VALUES
+(3, 2, 'Êtes-vous satisfait du service client ?', 'qcm', 0),
+(4, 2, 'Quelles améliorations suggérez-vous pour notre produit ?', 'reponse_libre', 0);
+
+-- Insertion des Réponses Proposées (pour QCM) (ID 1 à 7)
+INSERT INTO reponse_proposee (id_reponse_proposee, id_question, texte_reponse, est_correcte) VALUES
+(1, 1, 'start()', TRUE), (2, 1, 'run()', FALSE), (3, 1, 'init()', FALSE),
+(4, 2, 'extends', TRUE), (5, 2, 'implements', FALSE),
+(6, 3, 'Oui, très satisfait', TRUE), (7, 3, 'Non, pas du tout', FALSE);
+
+-- Insertion d'un Résultat Utilisateur (ID 1)
+INSERT INTO resultat_utilisateur (id_resultat, id_utilisateur, id_quiz, date_soumission, note_totale, pourcentage_reussi) VALUES
+(1, 4, 1, NOW(), 5.0, NULL);
+
+-- Insertion des Détails des Réponses (ID 1 à 2)
+INSERT INTO reponse_utilisateur (id_reponse_utilisateur, id_resultat, id_question, reponse_texte, id_reponse_choisie, est_correct) VALUES
+(1, 1, 1, NULL, 1, TRUE), (2, 1, 2, NULL, 5, FALSE);
+
+-- Insertion d'un Résultat Entreprise (ID 2)
+INSERT INTO resultat_utilisateur (id_resultat, id_utilisateur, id_quiz, date_soumission, note_totale, pourcentage_reussi) VALUES
+(2, 4, 2, NOW(), NULL, 50.0);
+
+-- Insertion des Détails des Réponses (ID 3 à 4)
+INSERT INTO reponse_utilisateur (id_reponse_utilisateur, id_resultat, id_question, reponse_texte, id_reponse_choisie, est_correct) VALUES
+(3, 2, 3, NULL, 6, TRUE),
+(4, 2, 4, 'Ajouter une documentation plus claire.', NULL, NULL);

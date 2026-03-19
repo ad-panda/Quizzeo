@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion à Quizzeo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="form-container">
+        <h1>Bienvenue sur Quizzeo</h1>
+        <form action="traitement_connexion.php" method="POST">
+            
+            <div class="form-group">
+                <label for="nom_compte">Nom du compte / Email</label>
+                <input type="text" id="nom_compte" name="nom_compte" required>
+            </div>
+
+            <div class="form-group">
+                <label for="mot_de_passe">Mot de passe</label>
+                <input type="password" id="mot_de_passe" name="mot_de_passe" required>
+            </div>
+
+            <div class="form-group">
+                <label for="role">Je me connecte en tant que :</label>
+                <select id="role" name="role" required>
+                    <option value="" disabled selected>Choisir mon type de compte</option>
+                    <option value="administrateur">Administrateur</option>
+                    <option value="ecole">École</option>
+                    <option value="entreprise">Entreprise</option>
+                    <option value="simple_utilisateur">Utilisateur Simple</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-login">Se connecter</button>
+        </form>
+
+        <a href="inscription.html" class="link-switch">
+            Pas encore de compte ? S'inscrire ici
+        </a>
+    </div>
+
+</body>
+</html>

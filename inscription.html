@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription à Quizeo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="form-container">
+        <h1>Créer votre compte Quizeo</h1>
+        <form action="traitement_inscription.php" method="POST">
+            
+            <div class="form-group">
+                <label for="nom_compte">Nom du compte</label>
+                <input type="text" id="nom_compte" name="nom_compte" required>
+            </div>
+
+            <div class="form-group">
+                <label for="mot_de_passe">Mot de passe</label>
+                <input type="password" id="mot_de_passe" name="mot_de_passe" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirm_mot_de_passe">Confirmer le mot de passe</label>
+                <input type="password" id="confirm_mot_de_passe" name="confirm_mot_de_passe" required>
+            </div>
+
+            <div class="form-group">
+                <label for="role">Type de compte :</label>
+                <select id="role" name="role" required>
+                    <option value="" disabled selected>Choisir mon type de compte</option>
+                    <option value="ecole">École</option>
+                    <option value="entreprise">Entreprise</option>
+                    <option value="simple_utilisateur">Utilisateur Simple</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="captcha">Vérification : Combien font 5 + 3 ?</label>
+                <input type="text" id="captcha" name="captcha" required>
+            </div>
+
+            <button type="submit" class="btn-register">S'inscrire</button>
+        </form>
+
+        <a href="index.html" class="link-switch">
+            Déjà inscrit ? Se connecter ici
+        </a>
+    </div>
+
+</body>
+</html>
