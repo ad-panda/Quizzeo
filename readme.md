@@ -1,4 +1,4 @@
-Projet quizeo Ipssi :
+Projet quizzeo Ipssi :
 
 Participants :
 - Adrien SIMOES FERREIRA
